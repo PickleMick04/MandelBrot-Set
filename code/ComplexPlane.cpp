@@ -18,7 +18,8 @@ ComplexPlane::ComplexPlane(int pixelWidth, int pixelHeight)
 	plane_size = Vector2f(BASE_WIDTH, BASE_HEIGHT * aspectRatio); //Complex plane size
 	zoomCount = 0;
 	state = State::CALCULATING; // initializing m_state to 0 the fancy way
-	VertexArray(Points, pixelWidth * pixelHeight); //initialize VertexArray
+	vArray.setPrimitiveType(Points);
+	vArray.resize(pixelWidth * pixelHeight);
 	
 
 }
@@ -102,17 +103,27 @@ size_t ComplexPlane::countIterations(Vector2f coord)
 	while (iteration < MAX_ITER && a2b2 <= 4.0)
 	{
 		// z = (a^2 + b^2) +2abi + a_0 + b_0i
-		a2b2 = pow(a, 2) + pow(b, 2) +cReal_a;
-		twoab = 2 * a * b +cImag_b;
-		current = a2b2 + twoab;
-		a = a2b2;
+		a2b2 = a * a - b * b;
+		twoab = 2.0f * a * b;
+		float new_a = a2b2 +cReal_a;
+		float new_b = twoab + cImag_b;
+		a = new_a;
+		b = new_b;
+		iteration++;
 	}
 	return iteration;
 }
 
 void ComplexPlane::iterationsToRGB(size_t count, Uint8& r, Uint8& g, Uint8& b)
 {
-
+	if(count == MAX_ITER)
+	{
+		r = g = b = 0;
+	}
+	else
+	{
+		r = g = b = 255;
+	}
 }
 
 sf::Vector2f ComplexPlane::mapPixelToCoords(Vector2i mousePixel)
