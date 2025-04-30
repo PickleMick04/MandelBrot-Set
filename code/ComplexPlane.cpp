@@ -68,7 +68,7 @@ void ComplexPlane::loadText(sf::Text& text)
 {
 	ostringstream oss;
 	oss << "MandelbrotSet" << endl;
-	oss << "Cursos Position: (" << mouseLocation.x << ", " << mouseLocation.y << ")" << endl;
+	oss << "Cursor's Position: (" << mouseLocation.x << ", " << mouseLocation.y << ")" << endl;
 	oss << "Center: (" << plane_center.x << ", " << plane_center.y << ")" << endl;
 	oss << "Left-Click to Zoom in" << endl;
 	oss << "Right-Click to Zoom out" << endl;
