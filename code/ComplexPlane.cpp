@@ -152,26 +152,25 @@ void ComplexPlane::iterationsToRGB(size_t count, Uint8& r, Uint8& g, Uint8& b)
 	}
 	if (count < MAX_ITER) {
 		r = 0;
-		g = ((MAX_ITER-count)*16)-1;
-		b = 255-((MAX_ITER - count)*16-1);
+		g = ((MAX_ITER - count) * 16) - 1;
+		b = 255;
 	}
 	if (count < 48) {
-		r = ((48-count)*16)-1;
+		r = 0;
+		g = 255;
+		b = 255-((48-count)*16)-1;
+	}
+	if (count < 32) {
+		r = ((32-count)*16)-1;
 		g = 255;
 		b = 0;
 	}
-	if (count < 32) {
+	if (count < 16) {
 		r = 255;
-		g = 255-((32-count)*16)-1;
-		b = 0;
-	}
-	if (count<16) {
-		r = 255;
-		g = 255-(count*16-1);
+		g = 255-((16-count)*16-1);
 		b = 0;
 	}
 }
-
 
 sf::Vector2f ComplexPlane::mapPixelToCoords(Vector2i mousePixel) // maps pixel coordinate to a coord in the complex plane
 {
