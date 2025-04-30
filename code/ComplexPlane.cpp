@@ -51,16 +51,16 @@ void ComplexPlane::zoomout()
 
 void ComplexPlane::setCenter(Vector2i mousePixel)
 {
-	Vector2f newCenter = mapPixelToCoords(mousePixel); 
+	Vector2f newCenter = mapPixelToCoords(mousePixel); //sets a new center point for the view based on where the user clicked
 	plane_center = newCenter;
-	state = State::CALCULATING;
+	state = State::CALCULATING; // changing state
 
 }
 
 
 void ComplexPlane::setMouseLocation(Vector2i mousePixel)
 {
-	Vector2f coord = mapPixelToCoords(mousePixel);
+	Vector2f coord = mapPixelToCoords(mousePixel); // converts the mouse location to complex coords to store it for real time curor feedback
 	mouseLocation = coord;
 
 }
@@ -70,11 +70,11 @@ void ComplexPlane::loadText(sf::Text& text)
 	ostringstream oss;
 	oss << "MandelbrotSet" << endl;
 	oss << "Cursos Position: (" << mouseLocation.x << ", " << mouseLocation.y << ")" << endl;
-	oss << "Center: (" << plane_center.x << ", " << plane_center.y << ")" << endl;
+	oss << "Center: (" << plane_center.x << ", " << plane_center.y << ")" << endl; // displays text window
 	oss << "Left-Click to Zoom in" << endl;
 	oss << "Right-Click to Zoom out" << endl;
 
-	text.setString(oss.str());
+	text.setString(oss.str()); // sets the text from the stringstream
 }
 void ComplexPlane::updateRender()
 {
@@ -127,17 +127,20 @@ size_t ComplexPlane::countIterations(Vector2f coord)
 
 	while (iteration < MAX_ITER)
 	{
-		// z = (a^2 + b^2) +2abi + a_0 + b_0i
-		a2 = a * a;
+		// z = (a^2 + b^2) +2abi + a_0 + b_0i, a^2 + b^2 is a, 2abi is b and the rest is c, expanded z = z^2 + c
+		// can also be z = (a^2 + b^2) + cReal_a + 2abi + cImag_b
+		//paired the real and imaginary together
+		// calculate each part of the equation above
+		a2 = a * a;  
 		b2 =b * b;
-		if (a2 + b2 >= 4.0f)
+		if (a2 + b2 >= 4.0f) // z^2 = sqrt( a2 + b2) >= 2.0, sqaured both sides to avoud sqrt 
 		{
 			break;
 		}
-		twoab = 2.0f * a * b;
-		float new_a = a2 - b2 + cReal_a;
+		twoab = 2.0f * a * b;   
+		float new_a = a2 - b2 + cReal_a;  
 		float new_b = twoab + cImag_b;
-		a = new_a;
+		a = new_a;  // overrides the a and b values for next iteration
 		b = new_b;
 		iteration++;
 	}
@@ -152,23 +155,23 @@ void ComplexPlane::iterationsToRGB(size_t count, Uint8& r, Uint8& g, Uint8& b)
 		return;
 	}
 
-	float t = (float) count / MAX_ITER;
+	float t = (float) count / MAX_ITER;  //normalize this value so that rgb vals dont exceed 255
 
-	
+	// uses polynomial functions to get smooth transitions
 	r = (Uint8) (9 * (1 - t) * t * t * t * 255);
-	g = (Uint8)(15 * (1 - t) * (1 - t) * t * t * 255);
+	g = (Uint8)(15 * (1 - t) * (1 - t) * t * t * 255);  
 	b = (Uint8)(8.5 * (1 - t) * (1 - t) * (1 - t) * t * 255);
 }
 
 
-sf::Vector2f ComplexPlane::mapPixelToCoords(Vector2i mousePixel)
+sf::Vector2f ComplexPlane::mapPixelToCoords(Vector2i mousePixel) // maps pixel coordinate to a coord in the complex plane
 {
-	float x = (float)mousePixel.x / pixel_size.x;
+	float x = (float)mousePixel.x / pixel_size.x;    // makes it so that the mouse positions range from 0 to 1 for simplicity
 	float y = (float)mousePixel.y / pixel_size.y;
 
-	float xCoord = plane_center.x + (x - 0.5f) * plane_size.x;
+	float xCoord = plane_center.x + (x - 0.5f) * plane_size.x;  // 
 	float yCoord = plane_center.y + (y - 0.5f) * plane_size.y;
 
-	Vector2f mappingCoords(xCoord, yCoord);
+	Vector2f mappingCoords(xCoord, yCoord); // creates vector2f to map and store the coords
 	return mappingCoords;
 }
