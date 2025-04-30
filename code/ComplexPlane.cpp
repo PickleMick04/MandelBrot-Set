@@ -13,14 +13,14 @@ using namespace sf;
 ComplexPlane::ComplexPlane(int pixelWidth, int pixelHeight)
 {
 	pixel_size = Vector2i(pixelWidth, pixelHeight);
-	aspectRatio = (float) pixelWidth / (float) pixelHeight; // cast width and height
+	aspectRatio = (float)pixelWidth / (float)pixelHeight; // cast width and height
 	plane_center = Vector2f(0, 0);
 	plane_size = Vector2f(BASE_WIDTH, BASE_HEIGHT * aspectRatio); //Complex plane size
 	zoomCount = 0;
 	state = State::CALCULATING; // initializing m_state to 0 the fancy way
 	vArray.setPrimitiveType(Points);
 	vArray.resize(pixelWidth * pixelHeight);
-	
+
 
 }
 
@@ -47,7 +47,7 @@ void ComplexPlane::zoomout()
 	state = State::CALCULATING;
 }
 
- 
+
 void ComplexPlane::setCenter(Vector2i mousePixel)
 {
 	Vector2f newCenter = mapPixelToCoords(mousePixel); // FINISH
@@ -74,13 +74,13 @@ void ComplexPlane::updateRender()
 {
 	if (state == State::CALCULATING) // checking if 0 using a class
 	{
-		for (int j = 0; j < pixel_size.x ; j++)
+		for (int j = 0; j < pixel_size.x; j++)
 		{
-			for (int i = 0; i < pixel_size.y ; i++)
+			for (int i = 0; i < pixel_size.y; i++)
 			{
 				// set pos of VertexArray that corresponds to the screen coord j,i
-				vArray[j + i * pixel_size.x].position = {(float)j, (float)i}; // note m_pixel_size.x is width
-				Vector2f coord = mapPixelToCoords(Vector2i(j, i)); 
+				vArray[j + i * pixel_size.x].position = { (float)j, (float)i }; // note m_pixel_size.x is width
+				Vector2f coord = mapPixelToCoords(Vector2i(j, i));
 				int Iterations = countIterations(coord);
 				Uint8 r = 0, g = 0, b = 0; //start with black and changes color depending on pixel(and iteration)
 				iterationsToRGB(Iterations, r, g, b);
@@ -95,17 +95,22 @@ void ComplexPlane::updateRender()
 size_t ComplexPlane::countIterations(Vector2f coord)
 {
 	size_t iteration = 0;
-	float current, twoab, a2b2, iterfunc;
+	float current, twoab, a2, b2, iterfunc;
 	float cReal_a = coord.x; // following c = a + bi, where a is real and b is imaginary
 	float cImag_b = coord.y;
 	float a = 0.0f, b = 0.0f; // z = 0 + 0i, we start at 0 therefore we set a and b to 0
 
-	while (iteration < MAX_ITER && a2b2 <= 4.0)
+	while (iteration < MAX_ITER)
 	{
 		// z = (a^2 + b^2) +2abi + a_0 + b_0i
-		a2b2 = a * a - b * b;
+		a2 = a * a;
+		b2 =b * b;
+		if (a2 + b2 >= 4.0f)
+		{
+			break;
+		}
 		twoab = 2.0f * a * b;
-		float new_a = a2b2 +cReal_a;
+		float new_a = a2 - b2 + cReal_a;
 		float new_b = twoab + cImag_b;
 		a = new_a;
 		b = new_b;
@@ -116,7 +121,7 @@ size_t ComplexPlane::countIterations(Vector2f coord)
 
 void ComplexPlane::iterationsToRGB(size_t count, Uint8& r, Uint8& g, Uint8& b)
 {
-	if(count == MAX_ITER)
+	if (count == MAX_ITER)
 	{
 		r = g = b = 0;
 	}
