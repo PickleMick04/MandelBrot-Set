@@ -177,8 +177,8 @@ sf::Vector2f ComplexPlane::mapPixelToCoords(Vector2i mousePixel) // maps pixel c
 	float x = (float)mousePixel.x / pixel_size.x;    // makes it so that the mouse positions range from 0 to 1 for simplicity
 	float y = (float)mousePixel.y / pixel_size.y;
 
-	float xCoord = plane_center.x + (x - 0.5f) * plane_size.x;  // 
-	float yCoord = plane_center.y + (y - 0.5f) * plane_size.y;
+	float xCoord = plane_center.x + (x - 0.5f) * plane_size.x;  //new range becomes [-0.5, 0.5] so 0.5 is to offset it and make sure its on the correct side of the origin
+	float yCoord = plane_center.y + (y - 0.5f) * plane_size.y;  //multiply by plane_size to make it complex coord and shift if by plane center
 
 	Vector2f mappingCoords(xCoord, yCoord); // creates vector2f to map and store the coords
 	return mappingCoords;
