@@ -14,7 +14,7 @@ using namespace sf;
 ComplexPlane::ComplexPlane(int pixelWidth, int pixelHeight)
 {
 	pixel_size = Vector2i(pixelWidth, pixelHeight);
-	aspectRatio = (float)pixelWidth / (float)pixelHeight; // cast width and height
+	aspectRatio = (float)pixelHeight / (float)pixelWidth; // cast width and height
 	plane_center = Vector2f(0, 0);
 	plane_size = Vector2f(BASE_WIDTH, BASE_HEIGHT * aspectRatio); //Complex plane size
 	zoomCount = 0;
