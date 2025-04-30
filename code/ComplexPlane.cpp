@@ -78,30 +78,25 @@ void ComplexPlane::loadText(sf::Text& text)
 }
 void ComplexPlane::updateRender()
 {
-	if (state != State::CALCULATING) // checking for the correct state
-		return;
-
-	const int threadCount = thread::hardware_concurrency(); // getting avalible cores for max threading power
-	vector<thread> threads; // createes a contatiner for all the threads
-	auto renderSlice = [this](int startY, int endY)
+	if (state == State::CALCULATING) // checking if 0 using a class
+	{
+		for (int j = 0; j < pixel_size.x; j++)
 		{
-			for (int y = startY; y < endY; ++y)
+			for (int i = 0; i < pixel_size.y; i++)
 			{
-				for (int x = 0; x < pixel_size.x; ++x)
-				{
-					Vector2f coord = mapPixelToCoords(Vector2i(x, y));
-					int iterations = countIterations(coord);   
+				// set pos of VertexArray that corresponds to the screen coord j,i
+				vArray[j + i * pixel_size.x].position = { (float)j, (float)i }; // note m_pixel_size.x is width
+				Vector2f coord = mapPixelToCoords(Vector2i(j, i));
+				int Iterations = countIterations(coord);
+				Uint8 r = 0, g = 0, b = 0; //start with black and changes color depending on pixel(and iteration)
+				iterationsToRGB(Iterations, r, g, b);
+				vArray[j + i * pixel_size.x].color = { r, g, b }; // sets the color variable to corospond to the screen coordinate 
 
-					Uint8 r, g, b;
-					iterationsToRGB(iterations, r, g, b);
-
-					size_t index = x + y * pixel_size.x;
-					vArray[index].position = Vector2f((float)x, (float)y);
-					vArray[index].color = Color(r, g, b);
-				}
 			}
-		};
-
+		}
+		state = State::DISPLAYING;
+	}
+}
 
 	int sliceHeight = pixel_size.y / threadCount;
 	for (int i = 0; i < threadCount; ++i)
