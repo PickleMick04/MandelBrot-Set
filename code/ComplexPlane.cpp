@@ -98,19 +98,7 @@ void ComplexPlane::updateRender()
 	}
 }
 
-	int sliceHeight = pixel_size.y / threadCount;
-	for (int i = 0; i < threadCount; ++i)
-	{
-		int startY = i * sliceHeight;
-		int endY = (i == threadCount - 1) ? pixel_size.y : (i + 1) * sliceHeight;
-		threads.emplace_back(renderSlice, startY, endY);
-	}
-
-	for (auto& t : threads)
-		t.join();
-
-	state = State::DISPLAYING;
-}
+	
 
 size_t ComplexPlane::countIterations(Vector2f coord)
 {
