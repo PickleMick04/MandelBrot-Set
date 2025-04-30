@@ -6,6 +6,7 @@
 #include <sstream>
 #include <vector>
 #include <complex>
+#include <thread>
 
 using namespace std;
 using namespace sf;
