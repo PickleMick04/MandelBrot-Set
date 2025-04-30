@@ -115,7 +115,7 @@ void ComplexPlane::updateRender()
 size_t ComplexPlane::countIterations(Vector2f coord)
 {
 	size_t iteration = 0;
-	float current, twoab, a2, b2, iterfunc;
+	float twoab, a2, b2;
 	float cReal_a = coord.x; // following c = a + bi, where a is real and b is imaginary
 	float cImag_b = coord.y;
 	float a = 0.0f, b = 0.0f; // z = 0 + 0i, we start at 0 therefore we set a and b to 0
