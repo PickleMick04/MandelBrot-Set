@@ -150,17 +150,31 @@ size_t ComplexPlane::countIterations(Vector2f coord)
 
 void ComplexPlane::iterationsToRGB(size_t count, Uint8& r, Uint8& g, Uint8& b)
 {
-	if (count == MAX_ITER) {
-		r = g = b = 0; // Inside the set = black
-		return;
+	//splits the iter amounts into groups of 16 and creates a color difference per number iter
+	if (count == MAX_ITER)
+	{
+		r = g = b = 0;
 	}
-
-	float t = (float) count / MAX_ITER;  //normalize this value so that rgb vals dont exceed 255
-
-	// uses polynomial functions to get smooth transitions
-	r = (Uint8) (9 * (1 - t) * t * t * t * 255);
-	g = (Uint8)(15 * (1 - t) * (1 - t) * t * t * 255);  
-	b = (Uint8)(8.5 * (1 - t) * (1 - t) * (1 - t) * t * 255);
+	if (count < MAX_ITER) {
+		r = 0;
+		g = ((MAX_ITER-count)*16)-1;
+		b = 255-((MAX_ITER - count)*16-1);
+	}
+	if (count < 48) {
+		r = ((48-count)*16)-1;
+		g = 255;
+		b = 0;
+	}
+	if (count < 32) {
+		r = 255;
+		g = 255-((32-count)*16)-1;
+		b = 0;
+	}
+	if (count<16) {
+		r = 255;
+		g = 255-(count*16-1);
+		b = 0;
+	}
 }
 
 
