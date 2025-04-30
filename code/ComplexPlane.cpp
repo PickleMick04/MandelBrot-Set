@@ -85,16 +85,16 @@ void ComplexPlane::updateRender()
 			for (int i = 0; i < pixel_size.y; i++)
 			{
 				// set pos of VertexArray that corresponds to the screen coord j,i
-				vArray[j + i * pixel_size.x].position = { (float)j, (float)i }; // note m_pixel_size.x is width
-				Vector2f coord = mapPixelToCoords(Vector2i(j, i));
-				int Iterations = countIterations(coord);
+				vArray[j + i * pixel_size.x].position = { (float)j, (float)i }; // note m_pixel_size.x is width, maps 2D coords to 1d array
+				Vector2f coord = mapPixelToCoords(Vector2i(j, i)); // get point in complex plane that corresponds the screen pixel
+				int Iterations = countIterations(coord); // count iterations for that pixel
 				Uint8 r = 0, g = 0, b = 0; //start with black and changes color depending on pixel(and iteration)
 				iterationsToRGB(Iterations, r, g, b);
-				vArray[j + i * pixel_size.x].color = { r, g, b }; // sets the color variable to corospond to the screen coordinate 
+				vArray[j + i * pixel_size.x].color = { r, g, b }; // sets the color variable to correspond to the screen coordinate 
 
 			}
 		}
-		state = State::DISPLAYING;
+		state = State::DISPLAYING; // change state
 	}
 }
 
@@ -163,10 +163,10 @@ void ComplexPlane::iterationsToRGB(size_t count, Uint8& r, Uint8& g, Uint8& b)
 sf::Vector2f ComplexPlane::mapPixelToCoords(Vector2i mousePixel) // maps pixel coordinate to a coord in the complex plane
 {
 	float x = (float)mousePixel.x / pixel_size.x;    // makes it so that the mouse positions range from 0 to 1 for simplicity
-	float y = (float)mousePixel.y / pixel_size.y;
+	float y = (float)mousePixel.y / pixel_size.y;	// think of it as a percentage of the total screen
 
-	float xCoord = plane_center.x + (x - 0.5f) * plane_size.x;  //new range becomes [-0.5, 0.5] so 0.5 is to offset it and make sure its on the correct side of the origin
-	float yCoord = plane_center.y + (y - 0.5f) * plane_size.y;  //multiply by plane_size to make it complex coord and shift if by plane center
+	float xCoord = plane_center.x + (x - 0.5f) * plane_size.x;  // subtracting 0.5 shifts it so that the range becomes [-0.5, 0.5], making the center of the screen 0
+	float yCoord = plane_center.y + (y - 0.5f) * plane_size.y;  //multiply by plane_size to make it complex coord and shift if by plane center depending on where you clicked
 
 	Vector2f mappingCoords(xCoord, yCoord); // creates vector2f to map and store the coords
 	return mappingCoords;
