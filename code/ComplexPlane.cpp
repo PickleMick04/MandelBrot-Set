@@ -68,34 +68,52 @@ void ComplexPlane::loadText(sf::Text& text)
 {
 	ostringstream oss;
 	oss << "MandelbrotSet" << endl;
-	oss << "Cursor's Position: (" << mouseLocation.x << ", " << mouseLocation.y << ")" << endl;
+	oss << "Cursos Position: (" << mouseLocation.x << ", " << mouseLocation.y << ")" << endl;
 	oss << "Center: (" << plane_center.x << ", " << plane_center.y << ")" << endl;
 	oss << "Left-Click to Zoom in" << endl;
 	oss << "Right-Click to Zoom out" << endl;
 
 	text.setString(oss.str());
 }
-
 void ComplexPlane::updateRender()
 {
-	if (state == State::CALCULATING) // checking if 0 using a class
-	{
-		for (int j = 0; j < pixel_size.x; j++)
-		{
-			for (int i = 0; i < pixel_size.y; i++)
-			{
-				// set pos of VertexArray that corresponds to the screen coord j,i
-				vArray[j + i * pixel_size.x].position = { (float)j, (float)i }; // note m_pixel_size.x is width
-				Vector2f coord = mapPixelToCoords(Vector2i(j, i));
-				int Iterations = countIterations(coord);
-				Uint8 r = 0, g = 0, b = 0; //start with black and changes color depending on pixel(and iteration)
-				iterationsToRGB(Iterations, r, g, b);
-				vArray[j + i * pixel_size.x].color = { r, g, b }; // sets the color variable to corospond to the screen coordinate 
+	if (state != State::CALCULATING) // checking for the correct state
+		return;
 
+	const int threadCount = thread::hardware_concurrency(); // getting avalible cores for max threading power
+	vector<thread> threads; // createes a contatiner for all the threads
+	auto renderSlice = [this](int startY, int endY)
+		{
+			for (int y = startY; y < endY; ++y)
+			{
+				for (int x = 0; x < pixel_size.x; ++x)
+				{
+					Vector2f coord = mapPixelToCoords(Vector2i(x, y));
+					int iterations = countIterations(coord);   
+
+					Uint8 r, g, b;
+					iterationsToRGB(iterations, r, g, b);
+
+					size_t index = x + y * pixel_size.x;
+					vArray[index].position = Vector2f((float)x, (float)y);
+					vArray[index].color = Color(r, g, b);
+				}
 			}
-		}
-		state = State::DISPLAYING;
+		};
+
+
+	int sliceHeight = pixel_size.y / threadCount;
+	for (int i = 0; i < threadCount; ++i)
+	{
+		int startY = i * sliceHeight;
+		int endY = (i == threadCount - 1) ? pixel_size.y : (i + 1) * sliceHeight;
+		threads.emplace_back(renderSlice, startY, endY);
 	}
+
+	for (auto& t : threads)
+		t.join();
+
+	state = State::DISPLAYING;
 }
 
 size_t ComplexPlane::countIterations(Vector2f coord)
@@ -125,17 +143,22 @@ size_t ComplexPlane::countIterations(Vector2f coord)
 	return iteration;
 }
 
+
 void ComplexPlane::iterationsToRGB(size_t count, Uint8& r, Uint8& g, Uint8& b)
 {
-	if (count == MAX_ITER)
-	{
-		r = g = b = 0;
+	if (count == MAX_ITER) {
+		r = g = b = 0; // Inside the set = black
+		return;
 	}
-	else
-	{
-		r = g = b = 255;
-	}
+
+	float t = (float) count / MAX_ITER;
+
+	
+	r = (Uint8) (9 * (1 - t) * t * t * t * 255);
+	g = (Uint8)(15 * (1 - t) * (1 - t) * t * t * 255);
+	b = (Uint8)(8.5 * (1 - t) * (1 - t) * (1 - t) * t * 255);
 }
+
 
 sf::Vector2f ComplexPlane::mapPixelToCoords(Vector2i mousePixel)
 {
